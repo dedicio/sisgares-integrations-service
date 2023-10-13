@@ -1,0 +1,20 @@
+version: '3.3'
+
+networks:
+  kong-net:
+    name: kong-net
+    driver: bridge
+    external: true
+
+services:
+  integrations-api:
+    build: .
+    container_name: integrations-api
+    networks:
+      - kong-net
+    ports:
+      - 3004:3004
+    volumes:
+      - .:/go/src/app
+    env_file:
+      - .env

@@ -19,7 +19,7 @@ func (uc *UpdateIntegrationUseCase) Execute(integration *dto.IntegrationDTO) (*d
 	newIntegration := entity.NewIntegration(
 		integration.Name,
 		integration.CompanyID,
-		integration.PlatformID,
+		integration.Platform,
 		integration.PlatformUsername,
 		integration.PlatformToken,
 		integration.Active,
@@ -33,7 +33,7 @@ func (uc *UpdateIntegrationUseCase) Execute(integration *dto.IntegrationDTO) (*d
 	output := &dto.IntegrationResponseDTO{
 		ID:               newIntegration.ID,
 		Name:             newIntegration.Name,
-		PlatformID:       newIntegration.PlatformID,
+		Platform:         newIntegration.Platform,
 		PlatformUsername: newIntegration.PlatformUsername,
 		Active:           newIntegration.Active,
 	}

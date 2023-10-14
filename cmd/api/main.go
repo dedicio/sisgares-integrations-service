@@ -7,10 +7,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/dedicio/sisgares-integrations-service/internal/entity"
+	"github.com/dedicio/sisgares-integrations-service/internal/infra/broker"
 	"github.com/dedicio/sisgares-integrations-service/internal/routes"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq"
+	"github.com/streadway/amqp"
 )
 
 var (
@@ -32,7 +35,6 @@ func main() {
 		DB_PASS,
 		DB_NAME,
 	)
-	fmt.Println("Connecting to database...", dbUrl)
 	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		panic(err)
@@ -45,12 +47,22 @@ func main() {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	fmt.Println("Message broker connection is been established succesfully")
+	connection, err := amqp.Dial(AMQP_URL)
+	if err != nil {
+		panic(err)
+	}
+	defer connection.Close()
+
+	consumer, err := broker.NewConsumer(db, connection)
+	if err != nil {
+		panic(err)
+	}
+	go consumer.Consume(entity.Topics)
 
 	router := chi.NewRouter()
 	routes := routes.NewRoutes(db)
 	router.Use(middleware.Logger)
 	router.Mount("/", routes.Routes())
 
-	http.ListenAndServe(":3003", router)
+	http.ListenAndServe(":3004", router)
 }

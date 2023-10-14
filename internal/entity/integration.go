@@ -6,7 +6,7 @@ type Integration struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
 	CompanyID        string `json:"company_id"`
-	PlatformID       string `json:"platform_id"`
+	Platform         string `json:"platform"`
 	PlatformUsername string `json:"platform_username"`
 	PlatformToken    string `json:"platform_token"`
 	Active           bool   `json:"active"`
@@ -15,7 +15,7 @@ type Integration struct {
 type IntegrationRepository interface {
 	// FindByCompanyIDAndPlatformID(companyID string, platformID string) (*Integration, error)
 	// FindAllByCompanyID(companyID string) ([]*Integration, error)
-	// FindAllByCompanyIDAndActive(companyID string, active bool) ([]*Integration, error)
+	FindAllByCompanyIDAndActive(companyID string) ([]*Integration, error)
 	// FindAllByCompanyIDAndPlatformID(companyID string, platformID string) ([]*Integration, error)
 	Update(integration *Integration) error
 	Create(integration *Integration) error
@@ -25,7 +25,7 @@ type IntegrationRepository interface {
 func NewIntegration(
 	name string,
 	companyID string,
-	platformID string,
+	platform string,
 	platformUsername string,
 	platformToken string,
 	active bool,
@@ -35,7 +35,7 @@ func NewIntegration(
 		ID:               id,
 		Name:             name,
 		CompanyID:        companyID,
-		PlatformID:       platformID,
+		Platform:         platform,
 		PlatformUsername: platformUsername,
 		PlatformToken:    platformToken,
 		Active:           active,

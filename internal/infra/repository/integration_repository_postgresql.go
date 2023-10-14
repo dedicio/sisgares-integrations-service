@@ -23,7 +23,7 @@ func (ir *IntegrationRepositoryPostgresql) Create(integration *entity.Integratio
 				id,
 				name,
 				company_id,
-				platform_id,
+				platform,
 				platform_username,
 				platform_token,
 				active,
@@ -47,7 +47,7 @@ func (ir *IntegrationRepositoryPostgresql) Create(integration *entity.Integratio
 		integration.ID,
 		integration.Name,
 		integration.CompanyID,
-		integration.PlatformID,
+		integration.Platform,
 		integration.PlatformUsername,
 		integration.PlatformToken,
 		integration.Active,
@@ -66,7 +66,7 @@ func (ir *IntegrationRepositoryPostgresql) Update(integration *entity.Integratio
 		SET
 			name = $1,
 			company_id = $2,
-			platform_id = $3,
+			platform = $3,
 			platform_username = $4,
 			platform_token = $5,
 			active = $6,
@@ -79,7 +79,7 @@ func (ir *IntegrationRepositoryPostgresql) Update(integration *entity.Integratio
 		sql,
 		integration.Name,
 		integration.CompanyID,
-		integration.PlatformID,
+		integration.Platform,
 		integration.PlatformUsername,
 		integration.PlatformToken,
 		integration.Active,
@@ -105,4 +105,50 @@ func (ir *IntegrationRepositoryPostgresql) Delete(id string) error {
 	}
 
 	return nil
+}
+
+func (ir *IntegrationRepositoryPostgresql) FindAllByCompanyIDAndActive(companyID string) ([]*entity.Integration, error) {
+	sql := `
+		SELECT
+			id,
+			name,
+			company_id,
+			platform,
+			platform_username,
+			platform_token,
+			active
+		FROM
+			integrations
+		WHERE
+			company_id = $1
+		AND
+			active = true
+	`
+
+	rows, err := ir.db.Query(sql, companyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var integrations []*entity.Integration
+	for rows.Next() {
+		integration := &entity.Integration{}
+		err := rows.Scan(
+			&integration.ID,
+			&integration.Name,
+			&integration.CompanyID,
+			&integration.Platform,
+			&integration.PlatformUsername,
+			&integration.PlatformToken,
+			&integration.Active,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		integrations = append(integrations, integration)
+	}
+
+	return integrations, nil
 }
